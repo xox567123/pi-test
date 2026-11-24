@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101321">
+  <meta name="description" content="A friendly challenge to learn the first 100 digits of pi, five digits at a time.">
+  <title>Pi Test — Learn the digits of π</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101321;
+      --panel: #191d30;
+      --panel-2: #20253a;
+      --text: #f5f6ff;
+      --muted: #a7aec6;
+      --accent: #a99bff;
+      --accent-strong: #8171f5;
+      --good: #67e0ae;
+      --bad: #ff8291;
+      --border: rgba(255,255,255,.1);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      background: radial-gradient(ellipse at 50% -20%, #34315d 0, transparent 55%), var(--bg);
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .shell { width: min(760px, calc(100% - 32px)); margin: 0 auto; padding: 38px 0 56px; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 30px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-size: 1.05rem; font-weight: 750; letter-spacing: -.02em; }
+    .brand-mark { display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid var(--border); border-radius: 14px; color: var(--accent); background: rgba(169,155,255,.11); font-size: 1.6rem; }
+    .quiet-button { border: 1px solid var(--border); border-radius: 11px; padding: 9px 13px; color: var(--muted); background: transparent; }
+    .quiet-button:hover { color: var(--text); background: rgba(255,255,255,.05); }
+    .card { padding: clamp(22px, 5vw, 42px); border: 1px solid var(--border); border-radius: 24px; background: rgba(25,29,48,.94); box-shadow: 0 24px 80px rgba(0,0,0,.24); }
+    .eyebrow { margin: 0 0 10px; color: var(--accent); font-size: .77rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { margin: 0 0 12px; font-size: clamp(2rem, 6vw, 3.25rem); letter-spacing: -.055em; line-height: 1.08; }
+    h2 { margin: 0 0 10px; font-size: clamp(1.55rem, 4vw, 2rem); letter-spacing: -.035em; }
+    .lead { max-width: 580px; margin: 0; color: var(--muted); line-height: 1.7; }
+    .digit-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(205px, 1fr)); gap: 9px; margin: 26px 0 28px; }
+    .digit-row { display: flex; align-items: center; gap: 12px; padding: 11px 13px; border: 1px solid var(--border); border-radius: 12px; background: rgba(255,255,255,.025); }
+    .digit-row span { min-width: 34px; color: var(--muted); font-size: .72rem; font-weight: 700; }
+    .digits { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; letter-spacing: .11em; }
+    .digit-row .digits { font-size: .94rem; }
+    .primary-button { border: 0; border-radius: 12px; padding: 13px 20px; color: #141327; background: var(--accent); font-weight: 800; transition: transform .15s, background .15s; }
+    .primary-button:hover { transform: translateY(-1px); background: #bdb3ff; }
+    .primary-button:focus-visible, .quiet-button:focus-visible, input:focus-visible { outline: 3px solid rgba(169,155,255,.55); outline-offset: 3px; }
+    .progress-wrap { margin: 25px 0 28px; }
+    .progress-label { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 9px; color: var(--muted); font-size: .86rem; }
+    .progress-track { height: 8px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.09); }
+    .progress-fill { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent-strong), #70d7cf); transition: width .3s ease; }
+    .target-box { margin: 20px 0 23px; padding: 20px; border: 1px solid var(--border); border-radius: 16px; background: var(--panel-2); text-align: center; }
+    .target-box .small-label { margin-bottom: 9px; color: var(--muted); font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .target-box .digits { color: var(--accent); font-size: clamp(1.8rem, 7vw, 2.8rem); font-weight: 750; letter-spacing: .15em; }
+    .form-label { display: block; margin-bottom: 9px; font-size: .9rem; font-weight: 700; }
+    .answer-input { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; color: var(--text); background: #111525; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 1.1rem; letter-spacing: .12em; }
+    .answer-input::placeholder { color: #69718c; letter-spacing: .03em; }
+    .answer-input[aria-invalid="true"] { border-color: rgba(255,130,145,.7); }
+    .form-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 15px; }
+    .feedback { min-height: 1.5em; margin: 16px 0 0; color: var(--muted); line-height: 1.5; }
+    .feedback.good { color: var(--good); }
+    .feedback.bad { color: var(--bad); }
+    .hint { margin: 17px 0 0; color: var(--muted); font-size: .86rem; line-height: 1.55; }
+    .streak { display: inline-flex; align-items: center; gap: 7px; margin-top: 15px; color: var(--muted); font-size: .86rem; }
+    .streak strong { color: var(--text); }
+    .hidden { display: none !important; }
+    .complete-mark { display: grid; width: 64px; height: 64px; place-items: center; margin-bottom: 20px; border-radius: 20px; color: var(--good); background: rgba(103,224,174,.12); font-size: 2rem; }
+    .note { margin-top: 24px; color: var(--muted); font-size: .83rem; line-height: 1.6; }
+    @media (max-width: 520px) {
+      .shell { padding-top: 22px; }
+      header { margin-bottom: 20px; }
+      .card { border-radius: 19px; }
+      .digit-list { grid-template-columns: 1fr; }
+      .form-row .primary-button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand"><span class="brand-mark" aria-hidden="true">π</span><span>Pi Test</span></div>
+      <button class="quiet-button hidden" id="restartButton" type="button">Start over</button>
+    </header>
+
+    <section class="card" id="intro" aria-labelledby="introTitle">
+      <p class="eyebrow">A little practice, a lot of pi</p>
+      <h1 id="introTitle">Meet the first 100 digits of π.</h1>
+      <p class="lead">Take a moment to look them over. When you’re ready, you’ll learn them five digits at a time. Make it to each checkpoint by entering the digits from memory.</p>
+      <div class="digit-list" id="digitList" aria-label="The first 100 digits after the decimal point"></div>
+      <button class="primary-button" id="beginButton" type="button">Next <span aria-hidden="true">→</span></button>
+      <p class="note">The list shows 100 digits after the decimal point. At checkpoints, type the full sequence so far without spaces or punctuation.</p>
+    </section>
+
+    <section class="card hidden" id="practice" aria-labelledby="stageTitle">
+      <p class="eyebrow" id="stageEyebrow">Practice</p>
+      <h2 id="stageTitle">Learn the next five digits</h2>
+      <p class="lead" id="stageDescription"></p>
+      <div class="progress-wrap" aria-label="Learning progress">
+        <div class="progress-label"><span id="progressText">0 of 100 digits learned</span><span id="progressPercent">0%</span></div>
+        <div class="progress-track" role="progressbar" aria-label="Digits learned" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+      <div class="target-box" id="targetBox">
+        <div class="small-label" id="targetLabel">Memorize these digits</div>
+        <div class="digits" id="targetDigits"></div>
+      </div>
+      <form id="answerForm" novalidate>
+        <label class="form-label" id="inputLabel" for="answerInput">Type the digits</label>
+        <input class="answer-input" id="answerInput" name="answer" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Digits only" aria-describedby="feedback hintText" required>
+        <div class="form-row"><button class="primary-button" type="submit" id="submitButton">Check answer</button></div>
+      </form>
+      <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
+      <div class="streak hidden" id="streakDisplay" aria-live="polite">Consecutive correct: <strong id="streakCount">0</strong> / 3</div>
+      <p class="hint" id="hintText">You get three tries before the answer is shown. Any mistake means you’ll need three correct entries in a row to move on.</p>
+    </section>
+
+    <section class="card hidden" id="finished" aria-labelledby="finishedTitle">
+      <div class="complete-mark" aria-hidden="true">✓</div>
+      <p class="eyebrow">Challenge complete</p>
+      <h2 id="finishedTitle">You learned 100 digits of π!</h2>
+      <p class="lead">That’s an incredible feat of memory. Want another go and see if you can do it even faster?</p>
+      <div style="margin-top:24px"><button class="primary-button" id="playAgainButton" type="button">Play again</button></div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      // These are the first 100 digits after the decimal point in pi.
+      const PI_DIGITS = '1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679';
+      const CHUNK_SIZE = 5;
+      const CHECKPOINT_SIZE = 25;
+      const REQUIRED_STREAK = 3;
+      const MAX_TRIES_BEFORE_REVEAL = 3;
+
+      const intro = document.getElementById('intro');
+      const practice = document.getElementById('practice');
+      const finished = document.getElementById('finished');
+      const restartButton = document.getElementById('restartButton');
+      const answerForm = document.getElementById('answerForm');
+      const answerInput = document.getElementById('answerInput');
+      const feedback = document.getElementById('feedback');
+      const targetBox = document.getElementById('targetBox');
+      const targetDigits = document.getElementById('targetDigits');
+      const targetLabel = document.getElementById('targetLabel');
+      const inputLabel = document.getElementById('inputLabel');
+      const hintText = document.getElementById('hintText');
+      const streakDisplay = document.getElementById('streakDisplay');
+      const streakCount = document.getElementById('streakCount');
+      const submitButton = document.getElementById('submitButton');
+      const progressFill = document.getElementById('progressFill');
+      const progressBar = document.getElementById('progressBar');
+
+      let learned = 0;
+      let stage = 'chunk';
+      let failedThisChunk = false;
+      let tries = 0;
+      let streak = 0;
+      let revealed = false;
+
+      function renderDigitList() {
+        const list = document.getElementById('digitList');
+        for (let start = 0; start < PI_DIGITS.length; start += 10) {
+          const row = document.createElement('div');
+          row.className = 'digit-row';
+          const label = document.createElement('span');
+          label.textContent = String(start + 1).padStart(2, '0') + '–' + String(Math.min(start + 10, 100)).padStart(2, '0');
+          const digits = document.createElement('code');
+          digits.className = 'digits';
+          digits.textContent = PI_DIGITS.slice(start, start + 10);
+          row.append(label, digits);
+          list.appendChild(row);
+        }
+      }
+
+      function updateProgress() {
+        const percent = learned;
+        document.getElementById('progressText').textContent = `${learned} of 100 digits learned`;
+        document.getElementById('progressPercent').textContent = `${percent}%`;
+        progressFill.style.width = `${percent}%`;
+        progressBar.setAttribute('aria-valuenow', String(percent));
+      }
+
+      function showStage() {
+        stage = learned > 0 && learned % CHECKPOINT_SIZE === 0 ? 'checkpoint' : 'chunk';
+        failedThisChunk = false;
+        tries = 0;
+        streak = 0;
+        revealed = false;
+        answerInput.value = '';
+        answerInput.removeAttribute('aria-invalid');
+        feedback.textContent = '';
+        feedback.className = 'feedback';
+        streakDisplay.classList.add('hidden');
+        submitButton.disabled = false;
+
+        if (stage === 'checkpoint') {
+          const expected = PI_DIGITS.slice(0, learned);
+          document.getElementById('stageEyebrow').textContent = `Checkpoint · ${learned} digits`;
+          document.getElementById('stageTitle').textContent = `Put all ${learned} digits together`;
+          document.getElementById('stageDescription').textContent = `Type the first ${learned} digits of pi in order. Get the whole sequence right ${REQUIRED_STREAK} times in a row to continue.`;
+          targetBox.classList.add('hidden');
+          inputLabel.textContent = `Type all ${learned} digits, in order`;
+          answerInput.maxLength = expected.length;
+          answerInput.placeholder = `${expected.length} digits`;
+          hintText.textContent = 'No spaces or punctuation. A mistake resets your consecutive-correct count.';
+          streakDisplay.classList.remove('hidden');
+          submitButton.textContent = 'Check sequence';
+        } else {
+          const end = Math.min(learned + CHUNK_SIZE, PI_DIGITS.length);
+          const expected = PI_DIGITS.slice(learned, end);
+          document.getElementById('stageEyebrow').textContent = `Digits ${learned + 1}–${end} of 100`;
+          document.getElementById('stageTitle').textContent = `Learn the next ${expected.length} digits`;
+          document.getElementById('stageDescription').textContent = 'Study the digits below, then type them from memory.';
+          targetBox.classList.remove('hidden');
+          targetLabel.textContent = 'Memorize these digits';
+          targetDigits.textContent = expected;
+          inputLabel.textContent = `Type these ${expected.length} digits`;
+          answerInput.maxLength = expected.length;
+          answerInput.placeholder = `${expected.length} digits`;
+          hintText.textContent = 'You get three tries before the answer is shown. Any mistake means you’ll need three correct entries in a row to move on.';
+          submitButton.textContent = 'Check answer';
+        }
+        updateProgress();
+        answerInput.focus();
+      }
+
+      function begin() {
+        intro.classList.add('hidden');
+        finished.classList.add('hidden');
+        practice.classList.remove('hidden');
+        restartButton.classList.remove('hidden');
+        learned = 0;
+        showStage();
+      }
+
+      function handleSubmit(event) {
+        event.preventDefault();
+        const answer = answerInput.value.replace(/\s/g, '');
+        const expected = stage === 'checkpoint'
+          ? PI_DIGITS.slice(0, learned)
+          : PI_DIGITS.slice(learned, Math.min(learned + CHUNK_SIZE, PI_DIGITS.length));
+
+        if (!answer) {
+          setFeedback('Type the digits before checking.', 'bad');
+          answerInput.setAttribute('aria-invalid', 'true');
+          answerInput.focus();
+          return;
+        }
+
+        if (answer === expected) {
+          answerInput.removeAttribute('aria-invalid');
+          if (stage === 'checkpoint') {
+            streak += 1;
+            streakCount.textContent = String(streak);
+            setFeedback(streak === REQUIRED_STREAK ? 'Perfect — checkpoint cleared!' : `Correct! ${REQUIRED_STREAK - streak} more ${REQUIRED_STREAK - streak === 1 ? 'time' : 'times'} in a row.`, 'good');
+            answerInput.value = '';
+            if (streak >= REQUIRED_STREAK) {
+              if (learned >= PI_DIGITS.length) finish();
+              else window.setTimeout(showStage, 850);
+            }
+            return;
+          }
+
+          if (failedThisChunk) {
+            streak += 1;
+            streakDisplay.classList.remove('hidden');
+            streakCount.textContent = String(streak);
+            setFeedback(streak === REQUIRED_STREAK ? 'Correct! You’ve earned your way forward.' : `Correct! Get it right ${REQUIRED_STREAK - streak} more ${REQUIRED_STREAK - streak === 1 ? 'time' : 'times'} in a row.`, 'good');
+            answerInput.value = '';
+            if (streak >= REQUIRED_STREAK) {
+              learned += expected.length;
+              window.setTimeout(() => {
+                if (learned === PI_DIGITS.length) finish();
+                else showStage();
+              }, 850);
+            }
+          } else {
+            setFeedback('Correct! On to the next five digits.', 'good');
+            learned += expected.length;
+            answerInput.value = '';
+            window.setTimeout(() => {
+              if (learned === PI_DIGITS.length) finish();
+              else showStage();
+            }, 650);
+          }
+          return;
+        }
+
+        answerInput.setAttribute('aria-invalid', 'true');
+        failedThisChunk = true;
+        streak = 0;
+        tries += 1;
+        if (stage === 'checkpoint') {
+          streakCount.textContent = '0';
+          setFeedback('Not quite — the sequence needs to be exact. Your consecutive-correct count is back to zero.', 'bad');
+        } else {
+          streakDisplay.classList.remove('hidden');
+          streakCount.textContent = '0';
+          if (tries >= MAX_TRIES_BEFORE_REVEAL && !revealed) {
+            revealed = true;
+            targetLabel.textContent = 'Here are the digits again';
+            setFeedback('Not quite. Take another look, then enter the digits correctly three times in a row.', 'bad');
+          } else {
+            const remaining = MAX_TRIES_BEFORE_REVEAL - tries;
+            setFeedback(`Not quite. ${remaining} ${remaining === 1 ? 'try' : 'tries'} left before the digits are shown again. You’ll need three correct in a row.`, 'bad');
+          }
+        }
+        answerInput.select();
+      }
+
+      function setFeedback(message, kind) {
+        feedback.textContent = message;
+        feedback.className = `feedback ${kind}`;
+      }
+
+      function finish() {
+        practice.classList.add('hidden');
+        finished.classList.remove('hidden');
+        restartButton.classList.add('hidden');
+      }
+
+      function reset() {
+        learned = 0;
+        practice.classList.add('hidden');
+        finished.classList.add('hidden');
+        intro.classList.remove('hidden');
+        restartButton.classList.add('hidden');
+      }
+
+      document.getElementById('beginButton').addEventListener('click', begin);
+      document.getElementById('playAgainButton').addEventListener('click', begin);
+      restartButton.addEventListener('click', reset);
+      answerForm.addEventListener('submit', handleSubmit);
+      renderDigitList();
+    })();
+  </script>
+</body>
+</html>
