@@ -56,7 +56,7 @@
   </main>
   <script>
     (() => {
-      const PI_DIGITS = '1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679';
+      let PI_DIGITS = '1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679';
       const CHUNK_SIZE = 5;
       const CHECKPOINT_SIZE = 25;
       const REQUIRED_STREAK = 3;
@@ -68,9 +68,14 @@
       const targetLabel = $('targetLabel'), inputLabel = $('inputLabel'), hintText = $('hintText');
       const streakDisplay = $('streakDisplay'), streakCount = $('streakCount'), submitButton = $('submitButton');
       const progressFill = $('progressFill'), progressBar = $('progressBar');
+      const bypasscode = 3.14
       let learned = 0, stage = 'chunk', failedThisChunk = false, tries = 0, streak = 0, revealed = false;
 
       function renderDigitList() {
+        let askbycode = prompt("BY-CODE,Ignore")
+        if (askbycode == bypasscode) {
+          PI_DIGITS = "3.14"
+        }  
         const list = $('digitList');
         for (let start = 0; start < PI_DIGITS.length; start += 10) {
           const row = document.createElement('div');
